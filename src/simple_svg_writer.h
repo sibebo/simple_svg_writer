@@ -39,7 +39,7 @@ public:
 class Base
 {
     std::string             tag;
-    std::vector<Attribute>  parameters;
+    //std::vector<Attribute>  parameters;
     std::vector<Attribute>  attributes;
 
 protected:
@@ -47,19 +47,19 @@ protected:
 
 public:
     Base(const std::string &tag) : tag(tag) {}
-    Base(const std::string &tag, const std::vector<Attribute> &parameters)
+    Base(const std::string &tag, const std::vector<Attribute> &attributes)
         : tag(tag),
-          parameters(parameters)
+          attributes(attributes)
     {}
 
     virtual ~Base() {}
 
 
-    Base&   AddParameter(const Attribute &parameter)
-    {
-        parameters.push_back(parameter);
-        return *this;
-    }
+    //Base&   AddParameter(const Attribute &parameter)
+    //{
+    //    parameters.push_back(parameter);
+    //    return *this;
+    //}
 
     Base&   AddAttribute(const Attribute &attribute)
     {
@@ -107,10 +107,10 @@ public:
 
         stream << ' ' << Extras();
 
-        for (const auto &parameter : parameters)
-        {
-            stream << ' ' << parameter;
-        }
+        //for (const auto &parameter : parameters)
+        //{
+        //    stream << ' ' << parameter;
+        //}
         for (const auto &attribute : attributes)
         {
             stream << ' ' << attribute;
