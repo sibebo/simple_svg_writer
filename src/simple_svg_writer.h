@@ -63,38 +63,41 @@ public:
 
     Base&   AddAttribute(const Attribute &attribute)
     {
-        attributes.push_back(attribute);
+        auto ii = find_if(attributes.begin(), attributes.end(), [attribute](const auto &a){return a.name.compare(attribute.name)==0;});
+        if (ii != Attributes.end())
+        {
+            ii->value = attribute.value;
+        }
+        else
+        {
+            attributes.push_back(attribute);
+        }
         return *this;
     }
 
     Base&   Id(const std::string &id)
     {
-        attributes.emplace_back("id", id);
-        return *this;
+        return AddAttribute({"id", id});
     }
 
     Base&   Class(const std::string &class_name)
     {
-        attributes.emplace_back("class", class_name);
-        return *this;
+        return AddAttribute({"class", class_name});
     }
 
     Base&   Stroke(const std::string &stroke)
     {
-        attributes.emplace_back("stroke", stroke);
-        return *this;
+        return AddAttribute({"stroke", stroke});
     }
 
     Base&   StrokeWidth(const double &stroke_width)
     {
-        attributes.emplace_back("stroke-width", stroke_width);
-        return *this;
+        return AddAttribute({"stroke-width", stroke_width});
     }
 
     Base&   Fill(const std::string &fill)
     {
-        attributes.emplace_back("fill", fill);
-        return *this;
+        return AddAttribute({"fill", fill});
     }
 
     std::string ToText() const
@@ -250,14 +253,15 @@ public:
 
 //class Group
 //{
-//    std::vector<std::shared_ptr<Base>>  objects;
+//    std::vector<std::unique_ptr<Base>>  objects;
 //
 //public:
 //    Group() {}
 //
-//    Group&  Append(const Base& object)
+//    template<typename T>
+//    Group&  Append(const T& object)
 //    {
-//        objects.push_back(std::make_shared<Base>(&object));
+//        objects.push_back(std::make_unique<T>(object));
 //        return *this;
 //    }
 //};
