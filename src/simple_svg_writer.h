@@ -113,9 +113,10 @@ public:
     {
         std::stringstream   stream;
 
-        for (const auto &t : transforms)
+        for (size_t i = transforms.size(); i != 0; --i)
+        //for (const auto &t : transforms)
         {
-            stream << t << " ";
+            stream << transforms[i-1] << " ";
         }
 
         return {"transform", stream.str()};
