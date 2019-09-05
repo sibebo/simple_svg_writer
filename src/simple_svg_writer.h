@@ -349,6 +349,7 @@ class GroupBase : public Base
 {
     std::vector<std::shared_ptr<Base>>  objects;
 
+protected:
     std::string StartTag() const
     {
         std::ostringstream  stream;
@@ -406,6 +407,27 @@ public:
     }
 };
 
+class Text : public GroupBase
+{
+    std::string text;
+public:
+    Text(double x, double y, const std::string &text)
+        : GroupBase("text", {{"x",x},{"y",y}}),
+          text(text)
+    {}
+    virtual ~Text() override {}
+
+    virtual std::string ToText() const override
+    {
+        std::ostringstream  stream;
+        stream << StartTag();
+        stream << text;
+        stream << EndTag();
+
+        return stream.str();
+    }
+};
+
 class Group : public GroupBase
 {
 public:
@@ -458,6 +480,15 @@ public:
     {"xmlns:inkscape",std::string("http://www.inkscape.org/namespaces/inkscape")}})
     {}
     virtual ~Document() override {}
+
+    Document&   ViewBox(double x_min, double y_min, double width, double height)
+    {
+        std::ostringstream  stream;
+        stream << x_min << ' ' << y_min << ' ' << width << ' ' << height;
+        AddAttribute({"viewBox", stream.str()});
+
+        return *this;
+    }
 
     virtual std::string ToText() const override
     {
