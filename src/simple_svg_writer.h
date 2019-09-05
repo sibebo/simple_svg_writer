@@ -333,6 +333,16 @@ public:
     virtual ~Ellipse() override {}
 };
 
+class Use : public Base
+{
+public:
+    Use() : Base("use") {}
+    Use(std::string reference_id)
+        : Base("use", {{"xlink:href", '#' + reference_id}})
+    {}
+    virtual ~Use() override {}
+};
+
 //-----------------------------------------------------------------------------
 class GroupBase : public Base
 {
