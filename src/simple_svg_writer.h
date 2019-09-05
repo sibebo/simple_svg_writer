@@ -1,4 +1,4 @@
-#pragma once
+s#pragma once
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -326,7 +326,7 @@ public:
 class Ellipse : public Base
 {
 public:
-    Ellipse() : Base("circle") {}
+    Ellipse() : Base("ellipse") {}
     Ellipse(double center_x, double center_y, double radius_x, double radius_y)
         : Base("ellipse", {{"cx",center_x},{"cy",center_y},{"rx",radius_x},{"ry",radius_y}})
     {}
