@@ -44,6 +44,7 @@ public:
 class Base
 {
     std::string             tag;
+    //std::vector<Attribute>  parameters;
     std::vector<Attribute>  attributes;
 
 protected:
@@ -58,10 +59,20 @@ public:
 
     virtual ~Base() {}
 
+    std::string     Tag() const {return tag;}
+    const auto&     Attributes() const {return attributes;}
+
+
+    //Base&   AddParameter(const Attribute &parameter)
+    //{
+    //    parameters.push_back(parameter);
+    //    return *this;
+    //}
+
     Base&   AddAttribute(const Attribute &attribute)
     {
         auto ii = std::find_if(attributes.begin(), attributes.end(), [attribute](const auto &a){return a.Name().compare(attribute.Name())==0;});
-        if (ii != Attributes.end())
+        if (ii != attributes.end())
         {
             ii->Value(attribute.Value());
         }
@@ -97,13 +108,17 @@ public:
         return AddAttribute({"fill", fill});
     }
 
-    std::string ToText() const
+    virtual std::string ToText() const
     {
         std::ostringstream  stream;
         stream << "<" << tag;
 
         stream << ' ' << Extras();
 
+        //for (const auto &parameter : parameters)
+        //{
+        //    stream << ' ' << parameter;
+        //}
         for (const auto &attribute : attributes)
         {
             stream << ' ' << attribute;
