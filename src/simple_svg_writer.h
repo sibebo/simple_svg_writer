@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <memory>
@@ -24,6 +25,10 @@ public:
     Attribute(std::string name, double value) : name(name), value(to_string(value)) {}
     Attribute(std::string name, int32_t value) : name(name), value(std::to_string(value)) {}
     Attribute(std::string name, bool value) : name(name), value(value ? "true" : "false") {}
+
+    std::string Name() const {return name;}
+    std::string Value() const {return value;}
+    void        Value(std::string value) {this->value = value;}
 
     std::string ToText() const
     {
@@ -63,10 +68,10 @@ public:
 
     Base&   AddAttribute(const Attribute &attribute)
     {
-        auto ii = find_if(attributes.begin(), attributes.end(), [attribute](const auto &a){return a.name.compare(attribute.name)==0;});
+        auto ii = std::find_if(attributes.begin(), attributes.end(), [attribute](const auto &a){return a.Name().compare(attribute.Name())==0;});
         if (ii != Attributes.end())
         {
-            ii->value = attribute.value;
+            ii->Value(attribute.Value());
         }
         else
         {
