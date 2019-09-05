@@ -43,6 +43,85 @@ public:
     }
 };
 
+class Transform
+{
+    // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
+    std::vector<std::string>    transforms;
+public:
+    Transform() {}
+
+    Transform&  matrix(double a, double b, double c, double d, double e, double f)
+    {
+        std::stringstream   stream;
+        stream << "matrix(" << a << " " << b << " " << c << " " << d << " " << e << " " << f << ')';
+        transforms.push_back(stream.str());
+
+        return *this;
+    }
+
+    Transform&  Translate(double dx, double dy=0.0)
+    {
+        std::stringstream   stream;
+        stream << "translate(" << dx << " " << dy << ')';
+        transforms.push_back(stream.str());
+
+        return *this;
+    }
+
+    Transform&  Scale(double scale_x, double scale_y)
+    {
+        std::stringstream   stream;
+        stream << "scale(" << " " << scale_x << " " << scale_y << ')';
+        transforms.push_back(stream.str());
+
+        return *this;
+    }
+
+    Transform&  Scale(double scale_x)
+    {
+        return Scale(scale_x, scale_x);
+    }
+
+    Transform&  Rotate(double angle, double about_x=0.0, double about_y=0.0)
+    {
+        std::stringstream   stream;
+        stream << "rotate(" << angle << " " << about_x << " " << about_y << ')';
+        transforms.push_back(stream.str());
+
+        return *this;
+    }
+
+    Transform&  SkewX(double skew_x)
+    {
+        std::stringstream   stream;
+        stream << "skewX(" << " " << skew_x << ')';
+        transforms.push_back(stream.str());
+
+        return *this;
+    }
+
+    Transform&  SkewY(double skew_y)
+    {
+        std::stringstream   stream;
+        stream << "skewY(" << " " << skew_y << ')';
+        transforms.push_back(stream.str());
+
+        return *this;
+    }
+
+    Attribute   AsAttribute() const
+    {
+        std::stringstream   stream;
+
+        for (const auto &t : transforms)
+        {
+            stream << t << " ";
+        }
+
+        return {"transform", stream.str()};
+    }
+};
+
 //-----------------------------------------------------------------------------
 class Base
 {
@@ -101,6 +180,11 @@ public:
     Base&   Fill(const std::string &fill)
     {
         return AddAttribute({"fill", fill});
+    }
+
+    Base&   Transform(const Transform &transform)
+    {
+        return AddAttribute(transform.AsAttribute());
     }
 
     virtual std::string ToText() const
