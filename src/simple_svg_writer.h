@@ -9,6 +9,7 @@
 namespace simple_svg
 {
 
+//-----------------------------------------------------------------------------
 inline std::string to_string(double value)
 {
     std::stringstream   s;
@@ -16,6 +17,7 @@ inline std::string to_string(double value)
     return s.str();
 }
 
+//-----------------------------------------------------------------------------
 class Attribute
 {
     std::string name;
@@ -41,10 +43,10 @@ public:
     }
 };
 
+//-----------------------------------------------------------------------------
 class Base
 {
     std::string             tag;
-    //std::vector<Attribute>  parameters;
     std::vector<Attribute>  attributes;
 
 protected:
@@ -61,13 +63,6 @@ public:
 
     std::string     Tag() const {return tag;}
     const auto&     Attributes() const {return attributes;}
-
-
-    //Base&   AddParameter(const Attribute &parameter)
-    //{
-    //    parameters.push_back(parameter);
-    //    return *this;
-    //}
 
     Base&   AddAttribute(const Attribute &attribute)
     {
@@ -115,10 +110,6 @@ public:
 
         stream << ' ' << Extras();
 
-        //for (const auto &parameter : parameters)
-        //{
-        //    stream << ' ' << parameter;
-        //}
         for (const auto &attribute : attributes)
         {
             stream << ' ' << attribute;
@@ -258,25 +249,10 @@ public:
     virtual ~Ellipse() override {}
 };
 
-
-//class Group
-//{
-//    std::vector<std::unique_ptr<Base>>  objects;
-//
-//public:
-//    Group() {}
-//
-//    template<typename T>
-//    Group&  Append(const T& object)
-//    {
-//        objects.push_back(std::make_unique<T>(object));
-//        return *this;
-//    }
-//};
-
-class Document : public Base
+//-----------------------------------------------------------------------------
+class GroupBase : public Base
 {
-    std::vector<std::unique_ptr<Base>>  objects;
+    std::vector<std::shared_ptr<Base>>  objects;
 
     std::string StartTag() const
     {
@@ -301,17 +277,16 @@ class Document : public Base
     }
 
 public:
-    //<?xml version="1.0"?>
-    //<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
-    //</svg>
-
-    Document() : Base("svg") {}
-    virtual ~Document() override {}
+    GroupBase(std::string group_tag)
+        : Base(group_tag) {}
+    GroupBase(std::string group_tag, const std::vector<Attribute> &attributes)
+        : Base(group_tag, attributes) {}
+    virtual ~GroupBase() override {}
 
     template<typename T>
-    Document&  Append(const T& object)
+    GroupBase&  Append(const T& object)
     {
-        objects.push_back(std::make_unique<T>(object));
+        objects.push_back(std::make_shared<T>(object));
         return *this;
     }
 
@@ -326,6 +301,48 @@ public:
         }
 
         stream << EndTag();
+
+        return stream.str();
+    }
+
+    friend std::ostream& operator<<(std::ostream &stream, const GroupBase &group_base)
+    {
+        return stream << group_base.ToText();
+    }
+};
+
+class Group : public GroupBase
+{
+public:
+    Group() : GroupBase("g") {}
+    virtual ~Group() override {}
+
+    virtual std::string ToText() const override
+    {
+        return GroupBase::ToText();
+    }
+
+    friend std::ostream& operator<<(std::ostream &stream, const Group &group)
+    {
+        return stream << group.ToText();
+    }
+};
+
+class Document : public GroupBase
+{
+public:
+    //<?xml version="1.0"?>
+    //<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+    //</svg>
+    Document() : GroupBase("svg") {}
+    virtual ~Document() override {}
+
+    virtual std::string ToText() const override
+    {
+        std::ostringstream  stream;
+        stream << "<?xml version=\"1.0\"?>" << '\n';
+
+        stream << GroupBase::ToText();
 
         return stream.str();
     }
