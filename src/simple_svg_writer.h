@@ -317,12 +317,24 @@ public:
     Group() : GroupBase("g") {}
     virtual ~Group() override {}
 
-    virtual std::string ToText() const override
-    {
-        return GroupBase::ToText();
-    }
-
     friend std::ostream& operator<<(std::ostream &stream, const Group &group)
+    {
+        return stream << group.ToText();
+    }
+};
+
+class Layer : public GroupBase
+{
+public:
+    Layer()
+        : GroupBase("g", {{"inkscape:groupmode", std::string("layer")}})
+    {}
+    Layer(const std::string &name)
+        : GroupBase("g", {{"inkscape:label", name}, {"inkscape:groupmode", std::string("layer")}})
+    {}
+    virtual ~Layer() override {}
+
+    friend std::ostream& operator<<(std::ostream &stream, const Layer &group)
     {
         return stream << group.ToText();
     }
