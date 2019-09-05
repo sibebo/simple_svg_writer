@@ -334,7 +334,12 @@ public:
     //<?xml version="1.0"?>
     //<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
     //</svg>
-    Document() : GroupBase("svg") {}
+    Document() 
+        : GroupBase("svg", {{"xmlns", std::string("http://www.w3.org/2000/svg")}}) 
+    {}
+    Document(double width, double height) 
+        : GroupBase("svg", {{"width",to_string(width)},{"height",to_string(height)},{"xmlns", std::string("http://www.w3.org/2000/svg")}}) 
+    {}
     virtual ~Document() override {}
 
     virtual std::string ToText() const override
