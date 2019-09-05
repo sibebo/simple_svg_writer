@@ -44,7 +44,6 @@ public:
 class Base
 {
     std::string             tag;
-    //std::vector<Attribute>  parameters;
     std::vector<Attribute>  attributes;
 
 protected:
@@ -58,13 +57,6 @@ public:
     {}
 
     virtual ~Base() {}
-
-
-    //Base&   AddParameter(const Attribute &parameter)
-    //{
-    //    parameters.push_back(parameter);
-    //    return *this;
-    //}
 
     Base&   AddAttribute(const Attribute &attribute)
     {
@@ -112,10 +104,6 @@ public:
 
         stream << ' ' << Extras();
 
-        //for (const auto &parameter : parameters)
-        //{
-        //    stream << ' ' << parameter;
-        //}
         for (const auto &attribute : attributes)
         {
             stream << ' ' << attribute;
@@ -271,5 +259,66 @@ public:
 //    }
 //};
 
+class Document : public Base
+{
+    std::vector<std::unique_ptr<Base>>  objects;
+
+    std::string StartTag() const
+    {
+        std::ostringstream  stream;
+        stream << "<" << Tag();
+
+        for (const auto &attribute : Attributes())
+        {
+            stream << ' ' << attribute;
+        }
+        stream << ">";
+
+        return stream.str();
+    }
+
+    std::string EndTag() const
+    {
+        std::ostringstream  stream;
+        stream << "</" << Tag() << ">";
+
+        return stream.str();
+    }
+
+public:
+    //<?xml version="1.0"?>
+    //<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+    //</svg>
+
+    Document() : Base("svg") {}
+    virtual ~Document() override {}
+
+    template<typename T>
+    Document&  Append(const T& object)
+    {
+        objects.push_back(std::make_unique<T>(object));
+        return *this;
+    }
+
+    virtual std::string ToText() const override
+    {
+        std::ostringstream  stream;
+        stream << StartTag() << '\n';
+
+        for (const auto &object : objects)
+        {
+            stream << "  " << *object << '\n';
+        }
+
+        stream << EndTag();
+
+        return stream.str();
+    }
+
+    friend std::ostream& operator<<(std::ostream &stream, const Document &document)
+    {
+        return stream << document.ToText();
+    }
+};
 
 } // namespace simple_svg
