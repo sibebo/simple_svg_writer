@@ -8,3 +8,6 @@ SOURCES += \
         
 HEADERS += \
         src/simple_svg_writer.h
+
+OTHER_FILES += \
+    README.md
