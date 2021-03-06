@@ -49,10 +49,48 @@ void    Test()
     file << d;
 }
 
+void    Something()
+{
+    simple_svg::Rect    r({0, 0}, {200, 200});
+    r.Fill("beige").Stroke("darkgreen").StrokeWidth(1);
+
+    simple_svg::Layer   background_layer("background");
+    background_layer.Append(r);
+
+    simple_svg::Polygon pg({{0,100},{100,0},{200,100},{100,200}});
+    pg.Fill("darkgreen").Stroke("brown").StrokeWidth(4);
+    simple_svg::Circle  c({100,100},75);
+    c.Fill("yellow").Stroke("blue").StrokeWidth(2).FillOpacity(0.50);
+
+    simple_svg::Layer   drawing_layer("drawing");
+    drawing_layer.Append(pg).Append(c);
+
+    simple_svg::Text    t({100,100}, "Hello");
+    t.Fill("black").Stroke("none");
+    t.FontFamily("sans-serif")
+            .Bold()
+            .FontSize(16)
+            .Italic()
+            .Center()
+            .Middle()
+            ;
+
+    simple_svg::Layer   text_layer("text");
+    text_layer.Append(t);
+
+    simple_svg::Document    d(200, 200);
+    d.ViewBox(0, 0, 200, 200);
+    d.Append(background_layer).Append(drawing_layer).Append(text_layer);
+
+    std::ofstream("../something.svg") << d;
+}
+
 
 int main()
 {
     try {
+        Something();
+
         Test();
         return 0;
 
