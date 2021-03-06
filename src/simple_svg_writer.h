@@ -236,28 +236,39 @@ public:
     }
 
     Base&   Stroke(const std::string &stroke)
+    /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke
     {
         return AddAttribute({"stroke", stroke});
     }
 
     Base&   StrokeWidth(const double &stroke_width)
+    /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-width
     {
         return AddAttribute({"stroke-width", stroke_width});
     }
 
     Base&   StrokeOpacity(const double &stroke_opacity)
+    /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-opacity
     {
         return AddAttribute({"stroke-opacity", stroke_opacity});
     }
 
     Base&   Fill(const std::string &fill)
+    /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/fill
     {
         return AddAttribute({"fill", fill});
     }
 
-    Base&   FillOpacity(const std::string &fill_opacity)
+    Base&   FillOpacity(const double &fill_opacity)
+    /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/fill-opacity
     {
         return AddAttribute({"fill-opacity", fill_opacity});
+    }
+
+    Base&   Opacity(const double &opacity)
+    /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/opacity
+    {
+        return AddAttribute({"opacity", opacity});
     }
 
     Base&   Transform(const Transform &transform)
