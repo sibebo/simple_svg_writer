@@ -562,6 +562,62 @@ public:
     {}
     virtual ~Text() override {}
 
+    Text&   TextAnchor(const std::string &text_anchor)
+    /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor
+    {
+        AddAttribute({"text-anchor", text_anchor});
+        return *this;
+    }
+
+    Text&   Right() {return TextAnchor("start");}
+    Text&   Center() {return TextAnchor("middle");}
+    Text&   Left() {return TextAnchor("end");}
+
+    Text&   DominantBaseline(const std::string &dominant_baseline)
+    /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/dominant-baseline
+    {
+        AddAttribute({"dominant-baseline", dominant_baseline});
+        return *this;
+    }
+
+    Text&   Auto() {return DominantBaseline("auto");}       ///< standard "on line" vertical alignment.
+    Text&   Middle() {return DominantBaseline("middle");}   ///< "centered" vertical alignment.
+    Text&   Hanging() {return DominantBaseline("hanging");} ///< "hangning" vertical alignment.
+
+    Text&   FontFamily(const std::string &font_family)
+    /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-family
+    {
+        AddAttribute({"font-family", font_family});
+        return *this;
+    }
+
+    Text&   FontSize(const std::string &font_size)
+    /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-size
+    {
+        AddAttribute({"font-size", font_size});
+        return *this;
+    }
+    Text&   FontSize(const double &font_size) {return FontSize(std::to_string(font_size) + "pt");}
+
+    Text&   FontStyle(const std::string &font_style)
+    /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-style
+    {
+        AddAttribute({"font-style", font_style});
+        return *this;
+    }
+
+    Text&   FontWeight(const std::string &font_weight)
+    /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-weight
+    {
+        AddAttribute({"font-weight", font_weight});
+        return *this;
+    }
+
+    Text&   Bold() {return FontWeight("bold");}
+    Text&   Italic() {return FontStyle("italic");}
+    Text&   Oblique() {return FontStyle("italic");}
+    Text&   Normal() {return FontStyle("normal").FontWeight("normal");}
+
     virtual std::string ToText() const override
     {
         std::ostringstream  stream;
