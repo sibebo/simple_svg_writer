@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <memory>
+#include <cmath>
 
 namespace simple_svg
 {
@@ -18,11 +19,58 @@ inline std::string to_string(double value)
 }
 
 //-----------------------------------------------------------------------------
+class Point
+{
+    double  x{0.0};
+    double  y{0.0};
+
+public:
+    Point() = default;
+    Point(const Point&) = default;
+    Point(Point&&) = default;
+    Point& operator=(const Point&) = default;
+    Point& operator=(Point&&) = default;
+
+    Point(double x, double y) : x(x), y(y) {}
+
+    double  X() const {return x;}
+    double  Y() const {return y;}
+
+    std::string ToText() const
+    {
+        std::stringstream stream;
+        stream << x << ',' << y;
+        return stream.str();
+    }
+
+    double  Length() const {return std::sqrt(x*x + y*y);}
+
+    friend std::ostream& operator<<(std::ostream &stream, const Point &point)
+    {
+        return stream << point.ToText();
+    }
+
+    friend  Point   operator+(const Point &a, const Point &b) {return {a.x + b.x, a.y + b.y};}
+    friend  Point   operator-(const Point &a, const Point &b) {return {a.x - b.x, a.y - b.y};}
+    friend  Point   operator/(const Point &a, double divisor) {return {a.x / divisor, a.y / divisor};}
+    friend  Point   operator*(const Point &a, double factor)  {return {a.x * factor, a.y * factor};}
+    friend  Point   operator*(double factor, const Point &a)  {return a * factor;}
+    friend  double  operator*(const Point &a, const Point &b) {return a.x * b.x + a.y * b.y;}
+    friend  bool    operator==(const Point &a, const Point &b) {return std::fabs(a.x - b.x) < 1e-3 && std::fabs(a.y - b.y) < 1e-3;}
+};
+
+//-----------------------------------------------------------------------------
 class Attribute
 {
     std::string name;
     std::string value;
 public:
+    Attribute() = default;
+    Attribute(const Attribute&) = default;
+    Attribute(Attribute&&) = default;
+    Attribute& operator=(const Attribute&) = default;
+    Attribute& operator=(Attribute&&) = default;
+
     Attribute(std::string name, std::string value) : name(name), value(value) {}
     Attribute(std::string name, double value) : name(name), value(to_string(value)) {}
     Attribute(std::string name, int32_t value) : name(name), value(std::to_string(value)) {}
@@ -48,8 +96,6 @@ class Transform
     // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
     std::vector<std::string>    transforms;
 public:
-    Transform() {}
-
     Transform&  matrix(double a, double b, double c, double d, double e, double f)
     {
         std::stringstream   stream;
@@ -68,6 +114,11 @@ public:
         return *this;
     }
 
+    Transform&  Translate(const Point &dp)
+    {
+        return Scale(dp.X(), dp.Y());
+    }
+
     Transform&  Scale(double scale_x, double scale_y)
     {
         std::stringstream   stream;
@@ -75,6 +126,11 @@ public:
         transforms.push_back(stream.str());
 
         return *this;
+    }
+
+    Transform&  Scale(const Point &scale)
+    {
+        return Scale(scale.X(), scale.Y());
     }
 
     Transform&  Scale(double scale_x)
@@ -89,6 +145,11 @@ public:
         transforms.push_back(stream.str());
 
         return *this;
+    }
+
+    Transform&  Rotate(double angle, const Point about)
+    {
+        return Rotate(angle, about.X(), about.Y());
     }
 
     Transform&  SkewX(double skew_x)
@@ -133,6 +194,12 @@ protected:
     virtual std::string Extras() const {return {};}
 
 public:
+    Base() = default;
+    Base(const Base&) = default;
+    Base(Base&&) = default;
+    Base& operator=(const Base&) = default;
+    Base& operator=(Base&&) = default;
+
     Base(const std::string &tag) : tag(tag) {}
     Base(const std::string &tag, const std::vector<Attribute> &attributes)
         : tag(tag),
@@ -178,9 +245,19 @@ public:
         return AddAttribute({"stroke-width", stroke_width});
     }
 
+    Base&   StrokeOpacity(const double &stroke_opacity)
+    {
+        return AddAttribute({"stroke-opacity", stroke_opacity});
+    }
+
     Base&   Fill(const std::string &fill)
     {
         return AddAttribute({"fill", fill});
+    }
+
+    Base&   FillOpacity(const std::string &fill_opacity)
+    {
+        return AddAttribute({"fill-opacity", fill_opacity});
     }
 
     Base&   Transform(const Transform &transform)
@@ -213,7 +290,13 @@ public:
 
 class Rect : public Base
 {
+    // https://developer.mozilla.org/en-US/docs/Web/SVG/Element/rect
 public:
+    Rect(const Rect&) = default;
+    Rect(Rect&&) = default;
+    Rect& operator=(const Rect&) = default;
+    Rect& operator=(Rect&&) = default;
+
     Rect() : Base("rect") {}
     Rect(double x, double y, double w, double h)
         : Base("rect", {{"x", x}, {"y", y}, {"width", w}, {"height", h}})
@@ -221,29 +304,10 @@ public:
     Rect(double w, double h)
         : Base("rect", {{"width", w}, {"height", h}})
     {}
-};
-
-
-class Point
-{
-    double  x{0.0};
-    double  y{0.0};
-
-public:
-    Point() {}
-    Point(double x, double y) : x(x), y(y) {}
-
-    std::string ToText() const
-    {
-        std::stringstream stream;
-        stream << x << ',' << y;
-        return stream.str();
-    }
-
-    friend std::ostream& operator<<(std::ostream &stream, const Point &point)
-    {
-        return stream << point.ToText();
-    }
+    Rect(const Point &from, const Point &to)
+        : Base("rect", {{"x", from.X()}, {"y", from.Y()}, {"width", to.X() - from.X()}, {"height", to.Y() - from.Y()}})
+    {}
+    virtual ~Rect() {}
 };
 
 class PolyBase : public Base
@@ -279,14 +343,19 @@ public:
 
     PolyBase&   Add(double x, double y)
     {
-        points.push_back({x, y});
-        return *this;
+        return Add({x, y});
     }
 };
 
 class Polyline : public PolyBase
 {
+    // https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polyline
 public:
+    Polyline(const Polyline&) = default;
+    Polyline(Polyline&&) = default;
+    Polyline& operator=(const Polyline&) = default;
+    Polyline& operator=(Polyline&&) = default;
+
     Polyline() : PolyBase("polyline") {}
     Polyline(const std::vector<Point> &points)
         : PolyBase("polyline", points)
@@ -296,7 +365,13 @@ public:
 
 class Polygon : public PolyBase
 {
+    // https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polygon
 public:
+    Polygon(const Polygon&) = default;
+    Polygon(Polygon&&) = default;
+    Polygon& operator=(const Polygon&) = default;
+    Polygon& operator=(Polygon&&) = default;
+
     Polygon() : PolyBase("polygon") {}
     Polygon(const std::vector<Point> &points)
         : PolyBase("polygon", points)
@@ -306,37 +381,70 @@ public:
 
 class Line : public Base
 {
+    // https://developer.mozilla.org/en-US/docs/Web/SVG/Element/line
 public:
+    Line(const Line&) = default;
+    Line(Line&&) = default;
+    Line& operator=(const Line&) = default;
+    Line& operator=(Line&&) = default;
+
     Line() : Base("line") {}
     Line(double from_x, double from_y, double to_x, double to_y)
         : Base("line", {{"x1",from_x},{"y1",from_y},{"x2",to_x},{"y2",to_y}})
+    {}
+    Line(const Point &from, const Point &to)
+        : Base("line", {{"x1",from.X()},{"y1",from.Y()},{"x2",to.X()},{"y2",to.Y()}})
     {}
     virtual ~Line() override {}
 };
 
 class Circle : public Base
 {
+    // https://developer.mozilla.org/en-US/docs/Web/SVG/Element/circle
 public:
+    Circle(const Circle&) = default;
+    Circle(Circle&&) = default;
+    Circle& operator=(const Circle&) = default;
+    Circle& operator=(Circle&&) = default;
+
     Circle() : Base("circle") {}
     Circle(double center_x, double center_y, double radius)
         : Base("circle", {{"cx",center_x},{"cy",center_y},{"r",radius}})
+    {}
+    Circle(const Point &center, double radius)
+        : Base("circle", {{"cx",center.X()},{"cy",center.Y()},{"r",radius}})
     {}
     virtual ~Circle() override {}
 };
 
 class Ellipse : public Base
 {
+    // https://developer.mozilla.org/en-US/docs/Web/SVG/Element/ellipse
 public:
+    Ellipse(const Ellipse&) = default;
+    Ellipse(Ellipse&&) = default;
+    Ellipse& operator=(const Ellipse&) = default;
+    Ellipse& operator=(Ellipse&&) = default;
+
     Ellipse() : Base("ellipse") {}
     Ellipse(double center_x, double center_y, double radius_x, double radius_y)
         : Base("ellipse", {{"cx",center_x},{"cy",center_y},{"rx",radius_x},{"ry",radius_y}})
+    {}
+    Ellipse(const Point &center, double radius_x, double radius_y)
+        : Base("ellipse", {{"cx",center.X()},{"cy",center.Y()},{"rx",radius_x},{"ry",radius_y}})
     {}
     virtual ~Ellipse() override {}
 };
 
 class Use : public Base
 {
+    // https://developer.mozilla.org/en-US/docs/Web/SVG/Element/use
 public:
+    Use(const Use&) = default;
+    Use(Use&&) = default;
+    Use& operator=(const Use&) = default;
+    Use& operator=(Use&&) = default;
+
     Use() : Base("use") {}
     Use(std::string reference_id)
         : Base("use", {{"xlink:href", '#' + reference_id}})
@@ -373,6 +481,11 @@ protected:
     }
 
 public:
+    GroupBase(const GroupBase&) = default;
+    GroupBase(GroupBase&&) = default;
+    GroupBase& operator=(const GroupBase&) = default;
+    GroupBase& operator=(GroupBase&&) = default;
+
     GroupBase(std::string group_tag)
         : Base(group_tag) {}
     GroupBase(std::string group_tag, const std::vector<Attribute> &attributes)
@@ -409,10 +522,21 @@ public:
 
 class Text : public GroupBase
 {
+    // https://developer.mozilla.org/en-US/docs/Web/SVG/Element/text
+
     std::string text;
 public:
+    Text(const Text&) = default;
+    Text(Text&&) = default;
+    Text& operator=(const Text&) = default;
+    Text& operator=(Text&&) = default;
+
     Text(double x, double y, const std::string &text)
         : GroupBase("text", {{"x",x},{"y",y}}),
+          text(text)
+    {}
+    Text(const Point &where, const std::string &text)
+        : GroupBase("text", {{"x",where.X()},{"y",where.Y()}}),
           text(text)
     {}
     virtual ~Text() override {}
@@ -430,7 +554,13 @@ public:
 
 class Group : public GroupBase
 {
+    // https://developer.mozilla.org/en-US/docs/Web/SVG/Element/g
 public:
+    Group(const Group&) = default;
+    Group(Group&&) = default;
+    Group& operator=(const Group&) = default;
+    Group& operator=(Group&&) = default;
+
     Group() : GroupBase("g") {}
     virtual ~Group() override {}
 
@@ -442,7 +572,13 @@ public:
 
 class Layer : public GroupBase
 {
+    // Implemented as Inkscape layer based on a group, <g>, with special attributes.
 public:
+    Layer(const Layer&) = default;
+    Layer(Layer&&) = default;
+    Layer& operator=(const Layer&) = default;
+    Layer& operator=(Layer&&) = default;
+
     Layer()
         : GroupBase("g", {{"inkscape:groupmode", std::string("layer")}})
     {}
@@ -460,6 +596,11 @@ public:
 class Document : public GroupBase
 {
 public:
+    Document(const Document&) = default;
+    Document(Document&&) = default;
+    Document& operator=(const Document&) = default;
+    Document& operator=(Document&&) = default;
+
     //<?xml version="1.0"?>
     //<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
     //</svg>
