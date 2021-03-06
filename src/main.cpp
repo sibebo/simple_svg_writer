@@ -36,12 +36,14 @@ void    Test()
     layer_3.Append(c);
     layer_3.Append(e);
 
+    layer_1.Append(simple_svg::Text({0,0}, "Hej Verden"));
 
     simple_svg::Document    d;
     d.ViewBox(-100, 0, 300, 200);
     d.Append(layer_1);
     d.Append(layer_2);
     d.Append(layer_3);
+
 
     std::ofstream   file("../test.svg");
     file << d;

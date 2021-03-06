@@ -345,6 +345,16 @@ public:
     {
         return Add({x, y});
     }
+
+    PolyBase&   Add(const std::vector<Point> &points)
+    {
+        for (const auto &p : points)
+        {
+            Add(p);
+        }
+
+        return *this;
+    }
 };
 
 class Polyline : public PolyBase
