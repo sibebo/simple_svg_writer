@@ -85,10 +85,131 @@ void    Something()
     std::ofstream("../something.svg") << d;
 }
 
+void    Pather()
+{
+    //<svg width="320" height="320" xmlns="http://www.w3.org/2000/svg">
+    //  <path d="M 10 315
+    //           L 110 215
+    //           A 30 50 0 0 1 162.55 162.45
+    //           L 172.55 152.45
+    //           A 30 50 -45 0 1 215.1 109.9
+    //           L 315 10" stroke="black" fill="green" stroke-width="2" fill-opacity="0.5"/>
+    //</svg>
+    simple_svg::Path    path;
+    path.MoveTo({10, 315})
+            .LineTo({110, 215})
+            .Arch(30, 50, 0, 0, 1, {162.55, 162.45})
+            .LineTo({172.55, 152.45})
+            .Arch(30, 50, -45, 0, 1, {215.1, 109.9})
+            .LineTo({315, 10})
+            .MoveTo({50, 10})
+            .LineTo({10, 10})
+            .LineTo({10, 50})
+            .Close()
+            .MoveTo({275, 315})
+            .LineTo({315, 315})
+            .LineTo({315, 275})
+            .Close()
+            ;
+    path.Stroke("black").Fill("green").StrokeWidth(2).FillOpacity(0.5);
+
+    simple_svg::Layer   layer("path1");
+    layer.Append(path);
+
+    simple_svg::Document    doc(320, 320);
+    doc.Append(layer);
+
+    std::ofstream("../path.svg") << doc;
+}
+
+void    Bezierer()
+{
+
+
+    simple_svg::Document    doc(190, 160);
+    {
+        //<path d="M 10 10 C 20 20, 40 20, 50 10" stroke="black" fill="transparent"/>
+        simple_svg::Path    path;
+        path.MoveTo({10,10}).Cubic({20,20},{40,20},{50,10});
+        path.Stroke("black").Fill("none");
+        doc.Append(path);
+    }
+    {
+        //<path d="M 70 10 C 70 20, 110 20, 110 10" stroke="black" fill="transparent"/>
+        simple_svg::Path    path;
+        path.MoveTo({70,10}).Cubic({70,20},{110,20},{110,10});
+        path.Stroke("black").Fill("none");
+        doc.Append(path);
+    }
+    {
+        //<path d="M 130 10 C 120 20, 180 20, 170 10" stroke="black" fill="transparent"/>
+        simple_svg::Path    path;
+        path.MoveTo({130,10}).Cubic({120,20},{180,20},{170,10});
+        path.Stroke("black").Fill("none");
+        doc.Append(path);
+    }
+    {
+        //<path d="M 10 60 C 20 80, 40 80, 50 60" stroke="black" fill="transparent"/>
+        simple_svg::Path    path;
+        path.MoveTo({10,60}).Cubic({20,80},{40,80},{50,60});
+        path.Stroke("black").Fill("none");
+        doc.Append(path);
+    }
+    {
+        //<path d="M 70 60 C 70 80, 110 80, 110 60" stroke="black" fill="transparent"/>
+        simple_svg::Path    path;
+        path.MoveTo({70,60}).Cubic({70,80},{110,80},{110,60});
+        path.Stroke("black").Fill("none");
+        doc.Append(path);
+    }
+    {
+        //<path d="M 130 60 C 120 80, 180 80, 170 60" stroke="black" fill="transparent"/>
+        simple_svg::Path    path;
+        path.MoveTo({130,60}).Cubic({120,80},{180,80},{170,60});
+        path.Stroke("black").Fill("none");
+        doc.Append(path);
+    }
+    {
+        //<path d="M 10 110 C 20 140, 40 140, 50 110" stroke="black" fill="transparent"/>
+        simple_svg::Path    path;
+        path.MoveTo({10,110}).Cubic({20,140},{40,140},{50,110});
+        path.Stroke("black").Fill("none");
+        doc.Append(path);
+    }
+    {
+        //<path d="M 70 110 C 70 140, 110 140, 110 110" stroke="black" fill="transparent"/>
+        simple_svg::Path    path;
+        path.MoveTo({70,110}).Cubic({70,140},{110,140},{110,110});
+        path.Stroke("black").Fill("none");
+        doc.Append(path);
+    }
+    {
+        //<path d="M 130 110 C 120 140, 180 140, 170 110" stroke="black" fill="transparent"/>
+        simple_svg::Path    path;
+        path.MoveTo({130,110}).Cubic({120,140},{180,140},{170,110});
+        path.Stroke("black").Fill("none");
+        doc.Append(path);
+    }
+    {
+        //  <path d="M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80" stroke="black" fill="transparent"/>
+        simple_svg::Path    path;
+        path.MoveTo({10,80}).Cubic({40,10},{65,10},{95,80}).Stitch({150,150},{180,80});
+        path.Stroke("red").Fill("none");
+        doc.Append(path);
+    }
+
+
+    std::ofstream("../bezier.svg") << doc;
+
+}
+
 
 int main()
 {
     try {
+        Pather();
+        Bezierer();
+
         Something();
 
         Test();

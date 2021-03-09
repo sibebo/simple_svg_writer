@@ -400,6 +400,167 @@ public:
     virtual ~Polygon() override {}
 };
 
+class Path : public Base
+{
+    // https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
+
+    std::vector<std::string>    parts;
+    virtual std::string Extras() const override
+    {
+        std::ostringstream  stream;
+        stream << "d=\"";
+
+        bool    initial{true};
+        for (const auto &p : parts)
+        {
+            if (!initial)
+            {
+                stream << " " << p;
+            }
+            else
+            {
+                stream << p;
+                initial = false;
+            }
+        }
+
+        stream << '\"';
+
+        return stream.str();
+    }
+
+public:
+    Path(const Path&) = default;
+    Path(Path&&) = default;
+    Path& operator=(const Path&) = default;
+    Path& operator=(Path&&) = default;
+
+    Path() : Base("path") {}
+    virtual ~Path() override {}
+
+    Path&   MoveTo(const Point &p, bool relative = true)
+    {
+        std::ostringstream  stream;
+        stream << (relative ? "M" : "m")
+               << " " << p.X()
+               << " " << p.Y()
+                  ;
+        parts.push_back(stream.str());
+        return *this;
+    }
+
+    Path&   LineTo(const Point &p, bool relative = true)
+    {
+        std::ostringstream  stream;
+        stream << (relative ? "L" : "l")
+               << " " << p.X()
+               << " " << p.Y()
+                  ;
+        parts.push_back(stream.str());
+        return *this;
+    }
+
+    Path&   HorizontalLineTo(double x, bool relative = true)
+    {
+        std::ostringstream  stream;
+        stream << (relative ? "H" : "h")
+               << " " << x
+                  ;
+        parts.push_back(stream.str());
+        return *this;
+    }
+
+    Path&   VerticalLineTo(double y, bool relative = true)
+    {
+        std::ostringstream  stream;
+        stream << (relative ? "V" : "v")
+               << " " << y
+                  ;
+        parts.push_back(stream.str());
+        return *this;
+    }
+
+    Path&   Close()
+    {
+        parts.push_back("Z");
+        return *this;
+    }
+
+    Path&   Cubic(const Point &p_c1, const Point &p_c2, const Point &p_end, bool relative = true)
+    {
+        std::ostringstream  stream;
+        stream << (relative ? "C" : "c")
+               << " " << p_c1.X()
+               << " " << p_c1.Y()
+               << "," << p_c2.X()
+               << " " << p_c2.Y()
+               << "," << p_end.X()
+               << " " << p_end.Y()
+                  ;
+        parts.push_back(stream.str());
+        return *this;
+    }
+
+    Path&   Stitch(const Point &p_c2, const Point &p_end, bool relative = true)
+    {
+        std::ostringstream  stream;
+        stream << (relative ? "S" : "s")
+               << " " << p_c2.X()
+               << " " << p_c2.Y()
+               << "," << p_end.X()
+               << " " << p_end.Y()
+                  ;
+        parts.push_back(stream.str());
+        return *this;
+    }
+
+    Path&   Quadratic(const Point &p_c, const Point &p_end, bool relative = true)
+    {
+        std::ostringstream  stream;
+        stream << (relative ? "Q" : "q")
+               << " " << p_c.X()
+               << " " << p_c.Y()
+               << "," << p_end.X()
+               << " " << p_end.Y()
+                  ;
+        parts.push_back(stream.str());
+        return *this;
+    }
+
+    Path&   Stitch(const Point &p_end, bool relative = true)
+    {
+        std::ostringstream  stream;
+        stream << (relative ? "T" : "t")
+               << " " << p_end.X()
+               << " " << p_end.Y()
+                  ;
+        parts.push_back(stream.str());
+        return *this;
+    }
+
+    Path&   Arch(double radius_x,
+                 double radius_y,
+                 double x_axis_rotation,
+                 bool large_arc_flag,
+                 bool sweep_flag,
+                 const Point &p_end,
+                 bool relative = true)
+    {
+        std::ostringstream  stream;
+        stream << (relative ? "A" : "a")
+               << " " << radius_x
+               << " " << radius_y
+               << " " << x_axis_rotation
+               << " " << (large_arc_flag ? "1" : "0")
+               << " " << (sweep_flag ? "1" : "0")
+               << " " << p_end.X()
+               << " " << p_end.Y()
+                  ;
+        parts.push_back(stream.str());
+        return *this;
+    }
+};
+
 class Line : public Base
 {
     // https://developer.mozilla.org/en-US/docs/Web/SVG/Element/line
