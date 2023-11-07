@@ -19,6 +19,9 @@ inline std::string to_string(double value)
 }
 
 //-----------------------------------------------------------------------------
+/**
+ * class Point represents a point, (x,y).
+*/
 class Point
 {
     double  x{0.0};
@@ -31,11 +34,29 @@ public:
     Point& operator=(const Point&) = default;
     Point& operator=(Point&&) = default;
 
+    /**
+     * Constructor instantiating Point with (x,y)
+     * @param x the x-value (absissa) of the point.
+     * @param y the y-value (ordinate) of the point.
+    */
     Point(double x, double y) : x(x), y(y) {}
 
+    /**
+     * X() return the x-value (absissa) of the point.
+     * @return the x-value.
+    */
     double  X() const {return x;}
+
+    /**
+     * Y() return the y-value (ordinate) of the point.
+     * @return the y-value.
+    */
     double  Y() const {return y;}
 
+    /**
+     * ToText returns a string holding the point's coordinates as "x,y".
+     * @return a string holding the point's coordinates as "x,y".
+    */
     std::string ToText() const
     {
         std::stringstream stream;
@@ -43,23 +64,88 @@ public:
         return stream.str();
     }
 
+    /**
+     * Lenght returns the lenght from origo (0,0) to the point.
+     * @return lenght from origo (0,0) to the point.
+    */
     double  Length() const {return std::sqrt(x*x + y*y);}
 
+    /**
+     * Convenience operator<< for wrting the point.
+     * @param stream    the output stream.
+     * @param point     the point to write to the stream.
+     * @return          reference to the output stream after writing.
+     * @see ToText().
+    */
     friend std::ostream& operator<<(std::ostream &stream, const Point &point)
     {
         return stream << point.ToText();
     }
 
+    /**
+     * + operator for Point
+     * @param a     a Point.
+     * @param b     a Point.
+     * @return      the points added (a+b).
+    */
     friend  Point   operator+(const Point &a, const Point &b) {return {a.x + b.x, a.y + b.y};}
+
+    /**
+     * - operator for Point
+     * @param a     a Point.
+     * @param b     a Point.
+     * @return      the points subtracted (a-b).
+    */
     friend  Point   operator-(const Point &a, const Point &b) {return {a.x - b.x, a.y - b.y};}
+
+
+    /**
+     * / operator for Point
+     * @param a         a Point.
+     * @param divisor   a divisor.
+     * @return          both coordinates of the point are divided by divisor (a/divisor).
+    */
     friend  Point   operator/(const Point &a, double divisor) {return {a.x / divisor, a.y / divisor};}
+
+    /**
+     * * operator for Point
+     * @param a         a Point.
+     * @param factor    a factor.
+     * @return          both coordinates of the point are multiplied by factor (a*factor).
+     * @see operator(double, const Point&).
+    */
     friend  Point   operator*(const Point &a, double factor)  {return {a.x * factor, a.y * factor};}
+
+    /**
+     * * operator for Point
+     * @param factor    a factor.
+     * @param a         a Point.
+     * @return          both coordinates of the point are multiplied by factor (factor*a).
+     * @see operator(const Point&, double).
+    */
     friend  Point   operator*(double factor, const Point &a)  {return a * factor;}
+
+    /**
+     * * operator for Point implementing the scalar (or dot) product (a*b)
+     * @param a         a Point.
+     * @param b         a Point.
+     * @return          scalar (dot) product of a and b (a*b).
+    */
     friend  double  operator*(const Point &a, const Point &b) {return a.x * b.x + a.y * b.y;}
+
+    /**
+     * == operator for Point
+     * @param factor    a factor.
+     * @param a         a Point.
+     * @return          true if a and b are identical within a margin of 1e-3.
+    */
     friend  bool    operator==(const Point &a, const Point &b) {return std::fabs(a.x - b.x) < 1e-3 && std::fabs(a.y - b.y) < 1e-3;}
 };
 
 //-----------------------------------------------------------------------------
+/**
+ * class Attribute implements an svg attribute consisting of a (name, value) pair.
+*/
 class Attribute
 {
     std::string name;
@@ -76,27 +162,62 @@ public:
     Attribute(std::string name, int32_t value) : name(name), value(std::to_string(value)) {}
     Attribute(std::string name, bool value) : name(name), value(value ? "true" : "false") {}
 
+    /**
+     * Name returns the name of the attribute.
+     * @return  name of the attribute.
+    */
     std::string Name() const {return name;}
+
+    /**
+     * Value returns the value of the attribute.
+     * @return  value of the attribute.
+    */
     std::string Value() const {return value;}
+
+    /**
+     * Value sets the value of the attribute.
+     * @param value     new value of the attribute.
+    */
     void        Value(std::string value) {this->value = value;}
 
+    /**
+     * ToText return a string representation of the attribute as: name="value".
+     * @return string holding the string representation of the attribute, name="value".
+    */
     std::string ToText() const
     {
         return name + "=\"" + value + "\"";
     }
 
+    /**
+     * Convenience operator<< for wrting the attribute.
+     * @param stream    the output stream.
+     * @param attribute the attibute to write to the stream.
+     * @return          reference to the output stream after writing.
+     * @see ToText().
+    */
     friend std::ostream& operator<<(std::ostream &stream, const Attribute &attribute)
     {
         return stream << attribute.ToText();
     }
 };
 
+/**
+ * class Transform handles a suite of 2D transforms.
+*/
 class Transform
 {
     // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform
     std::vector<std::string>    transforms;
 public:
-    Transform&  matrix(double a, double b, double c, double d, double e, double f)
+
+    /**
+     * Matrix performs a free transform defined by the specified matrix. It's structure is:
+     * | x' |   | a c e |   | x |
+     * | y' | = | b d f | * | y |
+     * | 1  |   | 0 0 1 |   | 1 |
+    */
+    Transform&  Matrix(double a, double b, double c, double d, double e, double f)
     {
         std::stringstream   stream;
         stream << "matrix(" << a << " " << b << " " << c << " " << d << " " << e << " " << f << ')';
@@ -105,6 +226,13 @@ public:
         return *this;
     }
 
+    /**
+     * Translate translates according to (dx,dy).
+     * @param dx    the translation in x-direction.
+     * @param dy    the translation in y-direction. Default is dy=0.0.
+     * @return a reference to the Transform object.
+     * @see Translate(const Point&).
+    */
     Transform&  Translate(double dx, double dy=0.0)
     {
         std::stringstream   stream;
@@ -114,11 +242,25 @@ public:
         return *this;
     }
 
+    /**
+     * Translate translates according to dp.
+     * @param dp    point specifying the translation in x and y.
+     * @return a reference to the Transform object.
+     * @see Translate(double, double).
+    */
     Transform&  Translate(const Point &dp)
     {
         return Translate(dp.X(), dp.Y());
     }
 
+    /**
+     * Scale scales according to (scale_x, scale_y).
+     * @param scale_x   scale factor in x-direction.
+     * @param scale_y   scale factor in y-direction.
+     * @return a reference to the Transform object.
+     * @see Scale(const Point&).
+     * @see Scale(double).
+    */
     Transform&  Scale(double scale_x, double scale_y)
     {
         std::stringstream   stream;
@@ -128,16 +270,38 @@ public:
         return *this;
     }
 
+    /**
+     * Scale scales according to dp.
+     * @param dp    point specifying the scaling in x and y.
+     * @return a reference to the Transform object.
+     * @see Scale(double, double).
+     * @see Scale(double).
+    */
     Transform&  Scale(const Point &scale)
     {
         return Scale(scale.X(), scale.Y());
     }
 
     /**
+     * Scale scales according to scale.
+     * @param scale     scale factor for both x and y directions.
+     * @return a reference to the Transform object.
+     * @see Scale(double, double).
+     * @see Scale(const Point&).
+    */
+    Transform&  Scale(double scale)
     {
         return Scale(scale, scale);
     }
 
+    /**
+     * Rotate rotates angle around point (about_x, about_y).
+     * @param angle     angle to rotate.
+     * @param about_x   rotation center's x-value.
+     * @param about_y   rotation center's y-value.
+     * @return a reference to the Transform object.
+     * @see Rotate(double, const Point&).
+    */
     Transform&  Rotate(double angle, double about_x=0.0, double about_y=0.0)
     {
         std::stringstream   stream;
@@ -148,11 +312,23 @@ public:
     }
 
     /**
+     * Rotate rotates angle around point about.
+     * @param angle     angle to rotate.
+     * @param about     rotation center.
+     * @return a reference to the Transform object.
+     * @see Rotate(double, double, double).
+    */
     Transform&  Rotate(double angle, const Point &about)
     {
         return Rotate(angle, about.X(), about.Y());
     }
 
+    /**
+     * SkewX skews in the x-direction.
+     * @param skew_x    skew value for the x-direction.
+     * @return a reference to the Transform object.
+     * @see SkewY(double).
+    */
     Transform&  SkewX(double skew_x)
     {
         std::stringstream   stream;
@@ -162,6 +338,12 @@ public:
         return *this;
     }
 
+    /**
+     * SkewY skews in the y-direction.
+     * @param skew_y    skew value for the y-direction.
+     * @return a reference to the Transform object.
+     * @see SkewX(double).
+    */
     Transform&  SkewY(double skew_y)
     {
         std::stringstream   stream;
@@ -171,6 +353,11 @@ public:
         return *this;
     }
 
+    /**
+     * AsAttribute returns the Transform represented as an Attribute.
+     * @returns an Attribute.
+     * @see class Attribute.
+    */
     Attribute   AsAttribute() const
     {
         std::stringstream   stream;
