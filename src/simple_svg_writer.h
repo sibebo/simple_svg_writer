@@ -373,7 +373,29 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-class Base
+class AbstractBase
+{
+public:
+    AbstractBase() = default;
+    AbstractBase(const AbstractBase&) = default;
+    AbstractBase(AbstractBase&&) = default;
+    AbstractBase& operator=(const AbstractBase&) = default;
+    AbstractBase& operator=(AbstractBase&&) = default;
+    virtual ~AbstractBase() {}
+
+    virtual std::string ToText() const = 0;
+
+    friend std::ostream& operator<<(std::ostream &stream, const AbstractBase *base)
+    {
+        return stream << base->ToText();
+    }
+
+protected:
+private:
+};
+
+template <typename SpecializedType>
+class Base : public AbstractBase
 {
     std::string             tag;
     std::vector<Attribute>  attributes;
@@ -388,18 +410,22 @@ public:
     Base& operator=(const Base&) = default;
     Base& operator=(Base&&) = default;
 
-    Base(const std::string &tag) : tag(tag) {}
+    Base(const std::string &tag) 
+        : AbstractBase(), 
+          tag(tag) 
+    {}
     Base(const std::string &tag, const std::vector<Attribute> &attributes)
-        : tag(tag),
+        : AbstractBase(), 
+          tag(tag),
           attributes(attributes)
     {}
 
     virtual ~Base() {}
 
-    std::string     Tag() const {return tag;}
+    virtual std::string     Tag() const {return tag;}
     const auto&     Attributes() const {return attributes;}
 
-    Base&   AddAttribute(const Attribute &attribute)
+    SpecializedType&   AddAttribute(const Attribute &attribute)
     {
         auto ii = std::find_if(attributes.begin(), attributes.end(), [attribute](const auto &a){return a.Name().compare(attribute.Name())==0;});
         if (ii != attributes.end())
@@ -410,61 +436,61 @@ public:
         {
             attributes.push_back(attribute);
         }
-        return *this;
+        return static_cast<SpecializedType&>(*this);
     }
 
-    Base&   Id(const std::string &id)
+    auto&   Id(const std::string &id)
     {
         return AddAttribute({"id", id});
     }
 
-    Base&   Class(const std::string &class_name)
+    auto&   Class(const std::string &class_name)
     {
         return AddAttribute({"class", class_name});
     }
 
-    Base&   Stroke(const std::string &stroke)
+    auto&   Stroke(const std::string &stroke)
     /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke
     {
         return AddAttribute({"stroke", stroke});
     }
 
-    Base&   StrokeWidth(const double &stroke_width)
+    auto&   StrokeWidth(const double &stroke_width)
     /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-width
     {
         return AddAttribute({"stroke-width", stroke_width});
     }
 
-    Base&   StrokeOpacity(const double &stroke_opacity)
+    auto&   StrokeOpacity(const double &stroke_opacity)
     /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-opacity
     {
         return AddAttribute({"stroke-opacity", stroke_opacity});
     }
 
-    Base&   Fill(const std::string &fill)
+    auto&   Fill(const std::string &fill)
     /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/fill
     {
         return AddAttribute({"fill", fill});
     }
 
-    Base&   FillOpacity(const double &fill_opacity)
+    auto&   FillOpacity(const double &fill_opacity)
     /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/fill-opacity
     {
         return AddAttribute({"fill-opacity", fill_opacity});
     }
 
-    Base&   Opacity(const double &opacity)
+    auto&   Opacity(const double &opacity)
     /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/opacity
     {
         return AddAttribute({"opacity", opacity});
     }
 
-    Base&   Transform(const Transform &transform)
+    auto&   Transform(const Transform &transform)
     {
         return AddAttribute(transform.AsAttribute());
     }
 
-    virtual std::string ToText() const
+    virtual std::string ToText() const override
     {
         std::ostringstream  stream;
         stream << "<" << tag;
@@ -473,21 +499,21 @@ public:
 
         for (const auto &attribute : attributes)
         {
-            stream << ' ' << attribute;
+            stream << ' ' << attribute.ToText();
         }
         stream << "/>";
 
         return stream.str();
     }
 
-    friend std::ostream& operator<<(std::ostream &stream, const Base &base)
-    {
-        return stream << base.ToText();
-    }
+    //friend std::ostream& operator<<(std::ostream &stream, const Base<SpecializedType> &base)
+    //{
+    //    return stream << base.ToText();
+    //}
 };
 
 
-class Rect : public Base
+class Rect : public Base<Rect>
 {
     // https://developer.mozilla.org/en-US/docs/Web/SVG/Element/rect
 public:
@@ -509,7 +535,8 @@ public:
     virtual ~Rect() {}
 };
 
-class PolyBase : public Base
+template <typename SpecializedType>
+class PolyBase : public Base<SpecializedType>
 {
     std::vector<Point> points;
 
@@ -520,43 +547,43 @@ protected:
 
         for (const auto &p : points)
         {
-            stream << p << " ";
+            stream << p.ToText() << " ";
         }
 
         return Attribute("points", stream.str()).ToText();
     }
 
 public:
-    PolyBase(std::string tag) : Base(tag) {}
+    PolyBase(std::string tag) : Base<SpecializedType>(tag) {}
     PolyBase(std::string tag, const std::vector<Point> &points)
-        : Base(tag),
+        : Base<SpecializedType>(tag),
           points(points)
     {}
     virtual ~PolyBase() override {}
 
-    PolyBase&   Add(const Point &point)
+    auto&   Add(const Point &point)
     {
         points.push_back(point);
-        return *this;
+        return static_cast<SpecializedType&>(*this);
     }
 
-    PolyBase&   Add(double x, double y)
+    auto&   Add(double x, double y)
     {
         return Add({x, y});
     }
 
-    PolyBase&   Add(const std::vector<Point> &points)
+    auto&   Add(const std::vector<Point> &points)
     {
         for (const auto &p : points)
         {
             Add(p);
         }
 
-        return *this;
+        return static_cast<SpecializedType&>(*this);
     }
 };
 
-class Polyline : public PolyBase
+class Polyline : public PolyBase<Polyline>
 {
     // https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polyline
 public:
@@ -572,7 +599,7 @@ public:
     virtual ~Polyline() override {}
 };
 
-class Polygon : public PolyBase
+class Polygon : public PolyBase<Polygon>
 {
     // https://developer.mozilla.org/en-US/docs/Web/SVG/Element/polygon
 public:
@@ -588,7 +615,7 @@ public:
     virtual ~Polygon() override {}
 };
 
-class Path : public Base
+class Path : public Base<Path>
 {
     // https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
 
@@ -749,7 +776,7 @@ public:
     }
 };
 
-class Line : public Base
+class Line : public Base<Line>
 {
     // https://developer.mozilla.org/en-US/docs/Web/SVG/Element/line
 public:
@@ -768,7 +795,7 @@ public:
     virtual ~Line() override {}
 };
 
-class Circle : public Base
+class Circle : public Base<Circle>
 {
     // https://developer.mozilla.org/en-US/docs/Web/SVG/Element/circle
 public:
@@ -787,7 +814,7 @@ public:
     virtual ~Circle() override {}
 };
 
-class Ellipse : public Base
+class Ellipse : public Base<Ellipse>
 {
     // https://developer.mozilla.org/en-US/docs/Web/SVG/Element/ellipse
 public:
@@ -806,7 +833,7 @@ public:
     virtual ~Ellipse() override {}
 };
 
-class Use : public Base
+class Use : public Base<Use>
 {
     // https://developer.mozilla.org/en-US/docs/Web/SVG/Element/use
 public:
@@ -823,19 +850,21 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-class GroupBase : public Base
+template <typename SpecializedType>
+class GroupBase : public Base<SpecializedType>
 {
-    std::vector<std::shared_ptr<Base>>  objects;
+    //std::vector<std::shared_ptr<Base<SpecializedType>>>  objects;
+    std::vector<std::shared_ptr<AbstractBase>>  objects;
 
 protected:
     std::string StartTag() const
     {
         std::ostringstream  stream;
-        stream << "<" << Tag();
+        stream << "<" << this->Tag();
 
-        for (const auto &attribute : Attributes())
+        for (const auto &attribute : this->Attributes())
         {
-            stream << ' ' << attribute;
+            stream << ' ' << attribute.ToText();
         }
         stream << ">";
 
@@ -845,7 +874,7 @@ protected:
     std::string EndTag() const
     {
         std::ostringstream  stream;
-        stream << "</" << Tag() << ">";
+        stream << "</" << this->Tag() << ">";
 
         return stream.str();
     }
@@ -857,16 +886,16 @@ public:
     GroupBase& operator=(GroupBase&&) = default;
 
     GroupBase(std::string group_tag)
-        : Base(group_tag) {}
+        : Base<SpecializedType>(group_tag) {}
     GroupBase(std::string group_tag, const std::vector<Attribute> &attributes)
-        : Base(group_tag, attributes) {}
+        : Base<SpecializedType>(group_tag, attributes) {}
     virtual ~GroupBase() override {}
 
     template<typename T>
-    GroupBase&  Append(const T& object)
+    auto&  Append(const T& object)
     {
         objects.push_back(std::make_shared<T>(object));
-        return *this;
+        return static_cast<SpecializedType&>(*this);
     }
 
     virtual std::string ToText() const override
@@ -876,7 +905,8 @@ public:
 
         for (const auto &object : objects)
         {
-            stream << "  " << *object << '\n';
+            //stream << "  " << object->ToText() << '\n';
+            stream << "  " << object << '\n';
         }
 
         stream << EndTag();
@@ -884,13 +914,13 @@ public:
         return stream.str();
     }
 
-    friend std::ostream& operator<<(std::ostream &stream, const GroupBase &group_base)
-    {
-        return stream << group_base.ToText();
-    }
+    //friend std::ostream& operator<<(std::ostream &stream, const GroupBase &group_base)
+    //{
+    //    return stream << group_base.ToText();
+    //}
 };
 
-class Text : public GroupBase
+class Text : public GroupBase<Text>
 {
     // https://developer.mozilla.org/en-US/docs/Web/SVG/Element/text
 
@@ -910,6 +940,9 @@ public:
           text(text)
     {}
     virtual ~Text() override {}
+
+    Text&   SetTextBuffer(std::string text) {this->text = text; return *this;}
+    std::string&   GetTextBuffer() {return text;}
 
     Text&   TextAnchor(const std::string &text_anchor)
     /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor
@@ -978,7 +1011,7 @@ public:
     }
 };
 
-class Group : public GroupBase
+class Group : public GroupBase<Group>
 {
     // https://developer.mozilla.org/en-US/docs/Web/SVG/Element/g
 public:
@@ -990,13 +1023,13 @@ public:
     Group() : GroupBase("g") {}
     virtual ~Group() override {}
 
-    friend std::ostream& operator<<(std::ostream &stream, const Group &group)
-    {
-        return stream << group.ToText();
-    }
+    //friend std::ostream& operator<<(std::ostream &stream, const Group &group)
+    //{
+    //    return stream << group.ToText();
+    //}
 };
 
-class Layer : public GroupBase
+class Layer : public GroupBase<Layer>
 {
     // Implemented as Inkscape layer based on a group, <g>, with special attributes.
 public:
@@ -1013,13 +1046,13 @@ public:
     {}
     virtual ~Layer() override {}
 
-    friend std::ostream& operator<<(std::ostream &stream, const Layer &group)
-    {
-        return stream << group.ToText();
-    }
+    //friend std::ostream& operator<<(std::ostream &stream, const Layer &group)
+    //{
+    //    return stream << group.ToText();
+    //}
 };
 
-class Document : public GroupBase
+class Document : public GroupBase<Document>
 {
 public:
     Document(const Document&) = default;
@@ -1062,7 +1095,7 @@ public:
         std::ostringstream  stream;
         stream << "<?xml version=\"1.0\"?>" << '\n';
 
-        stream << GroupBase::ToText();
+        stream << GroupBase<Document>::ToText();
 
         return stream.str();
     }
