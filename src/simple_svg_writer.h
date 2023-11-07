@@ -116,7 +116,7 @@ public:
 
     Transform&  Translate(const Point &dp)
     {
-        return Scale(dp.X(), dp.Y());
+        return Translate(dp.X(), dp.Y());
     }
 
     Transform&  Scale(double scale_x, double scale_y)
@@ -133,9 +133,9 @@ public:
         return Scale(scale.X(), scale.Y());
     }
 
-    Transform&  Scale(double scale_x)
+    /**
     {
-        return Scale(scale_x, scale_x);
+        return Scale(scale, scale);
     }
 
     Transform&  Rotate(double angle, double about_x=0.0, double about_y=0.0)
@@ -147,7 +147,8 @@ public:
         return *this;
     }
 
-    Transform&  Rotate(double angle, const Point about)
+    /**
+    Transform&  Rotate(double angle, const Point &about)
     {
         return Rotate(angle, about.X(), about.Y());
     }
