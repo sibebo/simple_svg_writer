@@ -71,6 +71,15 @@ public:
     double  Length() const {return std::sqrt(x*x + y*y);}
 
     /**
+     * Traverse returns the 2D transvers vector of vector represented by point, i.e. rotated +90 deg.
+     * @return  a point rotated +90 deg around origo (0,0).
+    */
+    Point   Traverse() const
+    {
+        return {-y, x};
+    }
+
+    /**
      * Convenience operator<< for wrting the point.
      * @param stream    the output stream.
      * @param point     the point to write to the stream.
