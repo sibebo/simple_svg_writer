@@ -23,6 +23,34 @@ TEST_CASE("simple_svg::Point")
         CHECK(p.Length() == Catch::Approx(22.360679775));
     }
 
+    SECTION("Angle")
+    {
+        CHECK(p.Radians() == Catch::Approx(1.1071487178));
+    }
+
+    SECTION("Degrees")
+    {
+        CHECK(p.Degrees() == Catch::Approx(63.4349488229));
+    }
+
+    SECTION("ToPolar")
+    {
+        auto    p1 = p.ToPolar();
+        CHECK(p1.Radians() == Catch::Approx(1.1071487178));
+        CHECK(p1.Modulus() == Catch::Approx(22.360679775));
+        CHECK(p1.X() == Catch::Approx(p.X()));
+        CHECK(p1.Y() == Catch::Approx(p.Y()));
+    }
+
+    SECTION("FromPolar")
+    {
+        p.FromPolar(simple_svg::Polar{1.1071487178, 22.360679775});
+        CHECK(p.X() == Catch::Approx(10.0));
+        CHECK(p.Y() == Catch::Approx(20.0));
+        CHECK(p.Length() == Catch::Approx(22.360679775));
+        CHECK(p.Radians() == Catch::Approx(1.1071487178));
+    }
+
     SECTION("Traverse")
     {
         auto    p1 = p.Traverse();

@@ -20,10 +20,34 @@ inline std::string to_string(double value)
 
 //-----------------------------------------------------------------------------
 /**
+ * Polar is a helper class holding a polar coordinate set: (angle, modulus).
+*/
+class Polar
+{
+    double  radians;
+    double  modulus;
+public:
+    Polar() = default;
+    Polar(const Polar&) = default;
+    Polar(Polar&&) = default;
+    Polar& operator=(const Polar&) = default;
+    Polar& operator=(Polar&&) = default;
+
+    Polar(double radians, double modulus) : radians(radians), modulus(modulus) {}
+    double  Radians() const {return radians;}
+    double  Modulus() const {return modulus;}
+    double  X() const {return modulus * std::cos(radians);}
+    double  Y() const {return modulus * std::sin(radians);}
+};
+
+
+/**
  * class Point represents a point, (x,y).
 */
 class Point
 {
+    constexpr double  Deg() const {return 45.0 / std::atan(1.0);}
+
     double  x{0.0};
     double  y{0.0};
 
@@ -41,6 +65,8 @@ public:
     */
     Point(double x, double y) : x(x), y(y) {}
 
+    Point(const Polar &p) : x(p.X()), y(p.Y()) {}
+
     /**
      * X() return the x-value (absissa) of the point.
      * @return the x-value.
@@ -52,6 +78,25 @@ public:
      * @return the y-value.
     */
     double  Y() const {return y;}
+
+    /**
+     * Constructs a Point from a Polar.
+     * @see class Polar.
+    */
+    Polar   ToPolar() const {return {Radians(), Length()};}
+
+    /**
+     * FromPolar sets the point from a Polar.
+     * @param p     a Polar.
+     * @return      reference to this Point.
+     * @see class Polar.
+    */
+    Point&  FromPolar(const Polar &p)
+    {
+        x = p.X();
+        y = p.Y();
+        return *this;
+    }
 
     /**
      * ToText returns a string holding the point's coordinates as "x,y".
@@ -69,6 +114,18 @@ public:
      * @return lenght from origo (0,0) to the point.
     */
     double  Length() const {return std::sqrt(x*x + y*y);}
+
+    /**
+     * Degrees returns the direction angle in radians of the vector from origo to point.
+     * @return  direction angle in radians of the vector from origo to point.
+    */
+    double  Radians() const {return std::atan2(y, x);}
+
+    /**
+     * Degrees returns the direction angle in degrees of the vector from origo to point.
+     * @return  direction angle in degrees of the vector from origo to point.
+    */
+    double  Degrees() const {return Deg() * Radians();}
 
     /**
      * Traverse returns the 2D transvers vector of vector represented by point, i.e. rotated +90 deg.
