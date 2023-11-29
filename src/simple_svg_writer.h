@@ -18,7 +18,10 @@ inline std::string to_string(double value)
     return s.str();
 }
 
-//-----------------------------------------------------------------------------
+inline  constexpr double  ToDegrees(double radians) {return radians * 45.0 / std::atan(1.0);}
+inline  constexpr double  ToRadians(double degrees) {return degrees * std::atan(1.0) / 45.0;}
+
+
 /**
  * Polar is a helper class holding a polar coordinate set: (angle, modulus).
 */
@@ -41,6 +44,7 @@ public:
 };
 
 
+//-----------------------------------------------------------------------------
 /**
  * class Point represents a point, (x,y).
 */
