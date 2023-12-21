@@ -9,4 +9,6 @@ add_executable(simple_svg src/main.cpp)
 add_executable(simple_svg_tests
                 tests/point_test.cpp
                 tests/polar_test.cpp
+                tests/attribute_test.cpp
+                tests/transform_test.cpp
                 catch2/catch_amalgamated.cpp)

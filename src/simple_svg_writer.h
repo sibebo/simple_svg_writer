@@ -228,6 +228,7 @@ public:
     Attribute& operator=(Attribute&&) = default;
 
     Attribute(std::string name, std::string value) : name(name), value(value) {}
+    Attribute(std::string name, const char* value) : name(name), value(value) {}
     Attribute(std::string name, double value) : name(name), value(to_string(value)) {}
     Attribute(std::string name, int32_t value) : name(name), value(std::to_string(value)) {}
     Attribute(std::string name, bool value) : name(name), value(value ? "true" : "false") {}
@@ -299,17 +300,28 @@ public:
     /**
      * Translate translates according to (dx,dy).
      * @param dx    the translation in x-direction.
-     * @param dy    the translation in y-direction. Default is dy=0.0.
+     * @param dy    the translation in y-direction.
      * @return a reference to the Transform object.
      * @see Translate(const Point&).
     */
-    Transform&  Translate(double dx, double dy=0.0)
+    Transform&  Translate(double dx, double dy)
     {
         std::stringstream   stream;
         stream << "translate(" << dx << " " << dy << ')';
         transforms.push_back(stream.str());
 
         return *this;
+    }
+
+    /**
+     * Translate translates horisontally according to dx.
+     * @param dx    the translation in x-direction.
+     * @return a reference to the Transform object.
+     * @see Translate(const Point&).
+    */
+    Transform&  Translate(double dx)
+    {
+        return Translate(dx, 0.0);
     }
 
     /**
@@ -334,7 +346,7 @@ public:
     Transform&  Scale(double scale_x, double scale_y)
     {
         std::stringstream   stream;
-        stream << "scale(" << " " << scale_x << " " << scale_y << ')';
+        stream << "scale(" << scale_x << " " << scale_y << ')';
         transforms.push_back(stream.str());
 
         return *this;
@@ -366,13 +378,13 @@ public:
 
     /**
      * Rotate rotates angle around point (about_x, about_y).
-     * @param angle     angle to rotate.
+     * @param angle     angle to rotate [degrees].
      * @param about_x   rotation center's x-value.
      * @param about_y   rotation center's y-value.
      * @return a reference to the Transform object.
      * @see Rotate(double, const Point&).
     */
-    Transform&  Rotate(double angle, double about_x=0.0, double about_y=0.0)
+    Transform&  Rotate(double angle, double about_x, double about_y)
     {
         std::stringstream   stream;
         stream << "rotate(" << angle << " " << about_x << " " << about_y << ')';
@@ -383,7 +395,7 @@ public:
 
     /**
      * Rotate rotates angle around point about.
-     * @param angle     angle to rotate.
+     * @param angle     angle to rotate [degrees].
      * @param about     rotation center.
      * @return a reference to the Transform object.
      * @see Rotate(double, double, double).
@@ -391,6 +403,21 @@ public:
     Transform&  Rotate(double angle, const Point &about)
     {
         return Rotate(angle, about.X(), about.Y());
+    }
+
+    /**
+     * Rotate rotates angle around origin.
+     * @param angle     angle to rotate [degrees].
+     * @return a reference to the Transform object.
+     * @see Rotate(double, double, double).
+    */
+    Transform&  Rotate(double angle)
+    {
+        std::stringstream   stream;
+        stream << "rotate(" << angle << ')';
+        transforms.push_back(stream.str());
+
+        return *this;
     }
 
     /**
@@ -435,7 +462,8 @@ public:
         for (size_t i = transforms.size(); i != 0; --i)
         //for (const auto &t : transforms)
         {
-            stream << transforms[i-1] << " ";
+            stream << transforms[i-1];
+            if (i != 1) stream << " ";  // if not the last, add a separator space.
         }
 
         return {"transform", stream.str()};
