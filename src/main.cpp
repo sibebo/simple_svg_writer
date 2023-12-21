@@ -26,7 +26,8 @@ void    Test()
 
 
     simple_svg::Layer   layer_1("lag_1");
-    layer_1.Append(std::move(pl));
+    //layer_1.Append(std::move(pl));
+    layer_1.Append(pl);
 
     simple_svg::Layer   layer_2("lag_2");
     layer_2.Append(pg);
@@ -36,13 +37,26 @@ void    Test()
     layer_3.Append(c);
     layer_3.Append(e);
 
-    layer_1.Append(simple_svg::Text({0,0}, "Hej Verden"));
+    //layer_1.Append(simple_svg::Text({0,0}, "Hej Verden"));
+    auto    hej = simple_svg::Text({0,0}, "Hej Verden").Middle().Center();
+    layer_1.Append(hej);
+
+    simple_svg::Layer   layer_4("lag_4");
+    simple_svg::Text    t4({0,0}, "Daw, ven");
+
+    simple_svg::Transform   tr4;
+    tr4.Rotate(45.0, {0.0, 0.0});
+    tr4.Rotate(45.0, {0.0, 0.0});
+    t4.Transform(tr4);
+
+    layer_4.Append(t4);
 
     simple_svg::Document    d;
     d.ViewBox(-100, 0, 300, 200);
     d.Append(layer_1);
     d.Append(layer_2);
     d.Append(layer_3);
+    d.Append(layer_4);
 
 
     std::ofstream   file("../test.svg");
@@ -217,16 +231,16 @@ int main()
 
         simple_svg::Rect    rect(0, 0, 100, 100);
         rect.Stroke("red").StrokeWidth(2).Fill("green");
-        std::cout << rect << '\n';
+        std::cout << rect.ToText() << '\n';
 
         simple_svg::Polyline    polyline({{0, 0}, {100, 100}, {50,100}, {200, 200}});
         polyline.Stroke("yellow").StrokeWidth(8).Fill("none");
-        std::cout << polyline << '\n';
+        std::cout << polyline.ToText() << '\n';
 
-        std::cout << simple_svg::Polygon({{0, 0}, {100, 100}, {50,100}, {200, 200}}).Stroke("red").Fill("green").StrokeWidth(2).Id("hej") << '\n';
-        std::cout << simple_svg::Circle(50, 50, 25).Stroke("red").Fill("green").StrokeWidth(2).Id("hej") << '\n';
-        std::cout << simple_svg::Ellipse(50, 50, 25, 15).Stroke("blue").Fill("yellow").StrokeWidth(2) << '\n';
-        std::cout << simple_svg::Line(50, 50, 25, 15).Stroke("brown").StrokeWidth(4) << '\n';
+        std::cout << simple_svg::Polygon({{0, 0}, {100, 100}, {50,100}, {200, 200}}).Stroke("red").Fill("green").StrokeWidth(2).Id("hej").ToText() << '\n';
+        std::cout << simple_svg::Circle(50, 50, 25).Stroke("red").Fill("green").StrokeWidth(2).Id("hej").ToText() << '\n';
+        std::cout << simple_svg::Ellipse(50, 50, 25, 15).Stroke("blue").Fill("yellow").StrokeWidth(2).ToText() << '\n';
+        std::cout << simple_svg::Line(50, 50, 25, 15).Stroke("brown").StrokeWidth(4).ToText() << '\n';
 
     } catch (std::exception &e) {
         std::cout << e.what() << std::endl;
