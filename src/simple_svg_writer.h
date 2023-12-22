@@ -459,11 +459,21 @@ public:
     {
         std::stringstream   stream;
 
-        for (size_t i = transforms.size(); i != 0; --i)
-        //for (const auto &t : transforms)
+        // Reverse order: - should it be so???
+        //for (size_t i = transforms.size(); i != 0; --i)
+        ////for (const auto &t : transforms)
+        //{
+        //    stream << transforms[i-1];
+        //    if (i != 1) stream << " ";  // if not the last, add a trailing separator space.
+        //}
+
+        bool is_first{true};
+        for (const auto &t : transforms)
         {
-            stream << transforms[i-1];
-            if (i != 1) stream << " ";  // if not the last, add a separator space.
+            if (!is_first) stream << ' '; // if not the first, add a leading separator space.
+            stream << t;
+
+            is_first = false;
         }
 
         return {"transform", stream.str()};
