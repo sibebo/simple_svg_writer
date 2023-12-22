@@ -508,12 +508,12 @@ public:
     Base& operator=(const Base&) = default;
     Base& operator=(Base&&) = default;
 
-    Base(const std::string &tag) 
-        : AbstractBase(), 
-          tag(tag) 
+    Base(const std::string &tag)
+        : AbstractBase(),
+          tag(tag)
     {}
     Base(const std::string &tag, const std::vector<Attribute> &attributes)
-        : AbstractBase(), 
+        : AbstractBase(),
           tag(tag),
           attributes(attributes)
     {}
