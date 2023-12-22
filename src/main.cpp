@@ -51,12 +51,24 @@ void    Test()
 
     layer_4.Append(t4);
 
+
+    simple_svg::Layer   layer_5("lag_5");
+    simple_svg::Text    t5({0,0}, "Daw, ven");
+
+    simple_svg::Transform   tr5;
+    tr5.Rotate(45.0, {0.0, 0.0}).Translate(150, 150).Rotate(45.0, {0.0, 0.0});
+    t5.Transform(tr5);
+
+    layer_5.Append(t5);
+
+
     simple_svg::Document    d;
     d.ViewBox(-100, 0, 300, 200);
     d.Append(layer_1);
     d.Append(layer_2);
     d.Append(layer_3);
     d.Append(layer_4);
+    d.Append(layer_5);
 
 
     std::ofstream   file("../test.svg");
