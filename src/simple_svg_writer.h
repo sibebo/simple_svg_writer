@@ -429,7 +429,7 @@ public:
     Transform&  SkewX(double skew_x)
     {
         std::stringstream   stream;
-        stream << "skewX(" << " " << skew_x << ')';
+        stream << "skewX(" << skew_x << ')';
         transforms.push_back(stream.str());
 
         return *this;
@@ -444,7 +444,7 @@ public:
     Transform&  SkewY(double skew_y)
     {
         std::stringstream   stream;
-        stream << "skewY(" << " " << skew_y << ')';
+        stream << "skewY(" << skew_y << ')';
         transforms.push_back(stream.str());
 
         return *this;
@@ -593,7 +593,10 @@ public:
         std::ostringstream  stream;
         stream << "<" << tag;
 
-        stream << ' ' << Extras();
+        if (auto extras = Extras(); !extras.empty())
+        {
+            stream << ' ' << extras;
+        }
 
         for (const auto &attribute : attributes)
         {
