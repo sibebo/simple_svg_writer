@@ -654,6 +654,21 @@ public:
         : Base("rect", {{"x", from.X()}, {"y", from.Y()}, {"width", to.X() - from.X()}, {"height", to.Y() - from.Y()}})
     {}
     virtual ~Rect() {}
+
+    void    Set(double x, double y, double w, double h)
+    {
+        AddAttributes({{"x", x}, {"y", y}, {"width", w}, {"height", h}});
+    }
+
+    void    Set(double w, double h)
+    {
+        AddAttributes({{"width", w}, {"height", h}});
+    }
+
+    void    Set(const Point &from, const Point &to)
+    {
+        AddAttributes({{"x", from.X()}, {"y", from.Y()}, {"width", to.X() - from.X()}, {"height", to.Y() - from.Y()}});
+    }
 };
 
 template <typename SpecializedType>
