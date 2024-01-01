@@ -1012,11 +1012,17 @@ public:
         : Base<SpecializedType>(group_tag, attributes) {}
     virtual ~GroupBase() override {}
 
+    /**
+     * Append appends an SVG object to the group base.
+     * @param object    a SVG object, e.g. simple_svg::Rect.
+     * @return          a reference to the internal version of the appended object.
+    */
     template<typename T>
     auto&  Append(const T& object)
     {
         objects.push_back(std::make_shared<T>(object));
-        return static_cast<SpecializedType&>(*this);
+        //return static_cast<SpecializedType&>(*this);
+        return static_cast<T&>(*objects.back());
     }
 
     virtual std::string ToText() const override
