@@ -61,15 +61,23 @@ void    Test()
 
     layer_5.Append(t5);
 
+    simple_svg::Layer   layer_6("lag_6");
+    layer_6.Append(simple_svg::Rect({20, 20}, {30, 30}).Fill("green"));
+    auto &r = layer_6.Append(simple_svg::Rect({20, 40}, {30, 50}).Fill("red"));
+    layer_6.Append(simple_svg::Rect({10, 60}, {20, 70}).Fill("brown"));
+    //auto& r = layer_6.back<simple_svg::Rect>();
 
     simple_svg::Document    d;
     d.ViewBox(-100, 0, 300, 200);
+    d.Append(layer_6);
     d.Append(layer_1);
     d.Append(layer_2);
     d.Append(layer_3);
     d.Append(layer_4);
     d.Append(layer_5);
 
+    r.Fill("blue");
+    r.Set({15, 40}, {35, 60});
 
     std::ofstream   file("../test.svg");
     file << d;
@@ -89,7 +97,8 @@ void    Something()
     c.Fill("yellow").Stroke("blue").StrokeWidth(2).FillOpacity(0.50);
 
     simple_svg::Layer   drawing_layer("drawing");
-    drawing_layer.Append(pg).Append(c);
+    drawing_layer.Append(pg);
+    drawing_layer.Append(c);
 
     simple_svg::Text    t({100,100}, "Hello");
     t.Fill("black").Stroke("none");
@@ -106,7 +115,9 @@ void    Something()
 
     simple_svg::Document    d(200, 200);
     d.ViewBox(0, 0, 200, 200);
-    d.Append(background_layer).Append(drawing_layer).Append(text_layer);
+    d.Append(background_layer);
+    d.Append(drawing_layer);
+    d.Append(text_layer);
 
     std::ofstream("../something.svg") << d;
 }
