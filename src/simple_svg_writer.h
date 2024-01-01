@@ -547,6 +547,16 @@ public:
         return static_cast<SpecializedType&>(*this);
     }
 
+    SpecializedType&   AddAttributes(const std::vector<Attribute> &attributes)
+    {
+        for (const auto &a : attributes)
+        {
+            AddAttribute(a);
+        }
+
+        return static_cast<SpecializedType&>(*this);
+    }
+
     auto&   Id(const std::string &id)
     {
         return AddAttribute({"id", id});
