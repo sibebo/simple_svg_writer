@@ -508,6 +508,8 @@ class Base : public AbstractBase
     std::string             tag;
     std::vector<Attribute>  attributes;
 
+    std::string             title;
+
 protected:
     virtual std::string Extras() const {return {};}
 
@@ -567,6 +569,12 @@ public:
         return AddAttribute({"class", class_name});
     }
 
+    auto&   Title(const std::string &title)
+    {
+        this->title = title;
+        return static_cast<SpecializedType&>(*this);
+    }
+
     auto&   Stroke(const std::string &stroke)
     /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke
     {
@@ -611,7 +619,7 @@ public:
     virtual std::string ToText() const override
     {
         std::ostringstream  stream;
-        stream << "<" << tag;
+        stream << "<" << tag;                           // start tag.
 
         if (auto extras = Extras(); !extras.empty())
         {
@@ -622,8 +630,17 @@ public:
         {
             stream << ' ' << attribute.ToText();
         }
-        stream << "/>";
 
+        if (title.empty())
+        {
+            stream << "/>";                             // closing single-line tag.
+        }
+        else
+        {
+            stream << ">";                              // closing start tag.
+            stream << "<title>" << title << "</title>";
+            stream << "</" << tag << ">";               // end tag.
+        }
         return stream.str();
     }
 
