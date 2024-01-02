@@ -13,9 +13,11 @@ void    Test()
     pl.Add({-100,100});
     pl.Add({0,150});
     pl.Stroke("purple").StrokeWidth(2).Fill("none");
+    pl.Title("MyPolyline");
 
     simple_svg::Polygon pg({{0, 0}, {100, 100}, {50,100}, {200, 200}});
     pg.Stroke("red").Fill("green").StrokeWidth(4).Id("polygon");
+    pg.Title("MyPolygon");
 
     simple_svg::Circle  c({50, 50}, 25);
     c.Stroke("red").Fill("green").StrokeWidth(8).Id("circle");
@@ -68,7 +70,7 @@ void    Test()
     //auto& r = layer_6.back<simple_svg::Rect>();
 
     simple_svg::Document    d;
-    d.ViewBox(-100, 0, 300, 200);
+    d.ViewBox(-110, -10, 350, 350);
     d.Append(layer_6);
     d.Append(layer_1);
     d.Append(layer_2);
