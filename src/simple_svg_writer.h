@@ -806,10 +806,10 @@ public:
     Path() : Base("path") {}
     virtual ~Path() override {}
 
-    Path&   MoveTo(const Point &p, bool relative = true)
+    Path&   MoveTo(const Point &p, bool relative = false)
     {
         std::ostringstream  stream;
-        stream << (relative ? "M" : "m")
+        stream << (relative ? "m" : "M")
                << " " << p.X()
                << " " << p.Y()
                   ;
@@ -817,10 +817,20 @@ public:
         return *this;
     }
 
-    Path&   LineTo(const Point &p, bool relative = true)
+    Path&   MoveAbsolute(const Point &p)
+    {
+        return MoveTo(p, false);
+    }
+
+    Path&   MoveRelative(const Point &p)
+    {
+        return MoveTo(p, true);
+    }
+
+    Path&   LineTo(const Point &p, bool relative = false)
     {
         std::ostringstream  stream;
-        stream << (relative ? "L" : "l")
+        stream << (relative ? "l" : "L")
                << " " << p.X()
                << " " << p.Y()
                   ;
@@ -828,24 +838,54 @@ public:
         return *this;
     }
 
-    Path&   HorizontalLineTo(double x, bool relative = true)
+    Path&   LineAbsolute(const Point &p)
+    {
+        return LineTo(p, false);
+    }
+
+    Path&   LineRelative(const Point &p)
+    {
+        return LineTo(p, true);
+    }
+
+    Path&   HorizontalLineTo(double x, bool relative = false)
     {
         std::ostringstream  stream;
-        stream << (relative ? "H" : "h")
+        stream << (relative ? "h" : "H")
                << " " << x
                   ;
         parts.push_back(stream.str());
         return *this;
     }
 
-    Path&   VerticalLineTo(double y, bool relative = true)
+    Path&   HorizontalLineAbsolute(double x)
+    {
+        return HorizontalLineTo(x, false);
+    }
+
+    Path&   HorizontalLineRelative(double x)
+    {
+        return HorizontalLineTo(x, true);
+    }
+
+    Path&   VerticalLineTo(double y, bool relative = false)
     {
         std::ostringstream  stream;
-        stream << (relative ? "V" : "v")
+        stream << (relative ? "v" : "V")
                << " " << y
                   ;
         parts.push_back(stream.str());
         return *this;
+    }
+
+    Path&   VerticaLineAbsolute(double y)
+    {
+        return VerticalLineTo(y, false);
+    }
+
+    Path&   VerticaLineRelative(double y)
+    {
+        return VerticalLineTo(y, true);
     }
 
     Path&   Close()
@@ -854,10 +894,10 @@ public:
         return *this;
     }
 
-    Path&   Cubic(const Point &p_c1, const Point &p_c2, const Point &p_end, bool relative = true)
+    Path&   Cubic(const Point &p_c1, const Point &p_c2, const Point &p_end, bool relative = false)
     {
         std::ostringstream  stream;
-        stream << (relative ? "C" : "c")
+        stream << (relative ? "c" : "C")
                << " " << p_c1.X()
                << " " << p_c1.Y()
                << "," << p_c2.X()
@@ -869,10 +909,20 @@ public:
         return *this;
     }
 
-    Path&   Stitch(const Point &p_c2, const Point &p_end, bool relative = true)
+    Path&   CubicAbsolute(const Point &p_c1, const Point &p_c2, const Point &p_end)
+    {
+        return Cubic(p_c1, p_c2, p_end, false);
+    }
+
+    Path&   CubicRelative(const Point &p_c1, const Point &p_c2, const Point &p_end)
+    {
+        return Cubic(p_c1, p_c2, p_end, true);
+    }
+
+    Path&   Stitch(const Point &p_c2, const Point &p_end, bool relative = false)
     {
         std::ostringstream  stream;
-        stream << (relative ? "S" : "s")
+        stream << (relative ? "s" : "S")
                << " " << p_c2.X()
                << " " << p_c2.Y()
                << "," << p_end.X()
@@ -882,10 +932,20 @@ public:
         return *this;
     }
 
-    Path&   Quadratic(const Point &p_c, const Point &p_end, bool relative = true)
+    Path&   StitchAbsolute(const Point &p_c2, const Point &p_end)
+    {
+        return Stitch(p_c2, p_end, false);
+    }
+
+    Path&   StitchRelative(const Point &p_c2, const Point &p_end)
+    {
+        return Stitch(p_c2, p_end, true);
+    }
+
+    Path&   Quadratic(const Point &p_c, const Point &p_end, bool relative = false)
     {
         std::ostringstream  stream;
-        stream << (relative ? "Q" : "q")
+        stream << (relative ? "q" : "Q")
                << " " << p_c.X()
                << " " << p_c.Y()
                << "," << p_end.X()
@@ -895,15 +955,35 @@ public:
         return *this;
     }
 
-    Path&   Stitch(const Point &p_end, bool relative = true)
+    Path&   QuadraticAbsolute(const Point &p_c, const Point &p_end)
+    {
+        return Quadratic(p_c, p_end, false);
+    }
+
+    Path&   QuadraticRelative(const Point &p_c, const Point &p_end)
+    {
+        return Quadratic(p_c, p_end, true);
+    }
+
+    Path&   Stitch(const Point &p_end, bool relative = false)
     {
         std::ostringstream  stream;
-        stream << (relative ? "T" : "t")
+        stream << (relative ? "t" : "T")
                << " " << p_end.X()
                << " " << p_end.Y()
                   ;
         parts.push_back(stream.str());
         return *this;
+    }
+
+    Path&   StitchAbsolute(const Point &p_end)
+    {
+        return Stitch(p_end, false);
+    }
+
+    Path&   StitchRelative(const Point &p_end)
+    {
+        return Stitch(p_end, true);
     }
 
     Path&   Arch(double radius_x,
@@ -912,10 +992,10 @@ public:
                  bool large_arc_flag,
                  bool sweep_flag,
                  const Point &p_end,
-                 bool relative = true)
+                 bool relative = false)
     {
         std::ostringstream  stream;
-        stream << (relative ? "A" : "a")
+        stream << (relative ? "a" : "A")
                << " " << radius_x
                << " " << radius_y
                << " " << x_axis_rotation
@@ -926,6 +1006,26 @@ public:
                   ;
         parts.push_back(stream.str());
         return *this;
+    }
+
+    Path&   ArchAbsolute(double radius_x,
+                         double radius_y,
+                         double x_axis_rotation,
+                         bool large_arc_flag,
+                         bool sweep_flag,
+                         const Point &p_end)
+    {
+        return Arch(radius_x, radius_y, x_axis_rotation, large_arc_flag, sweep_flag, p_end, false);
+    }
+
+    Path&   ArchRelative(double radius_x,
+                         double radius_y,
+                         double x_axis_rotation,
+                         bool large_arc_flag,
+                         bool sweep_flag,
+                         const Point &p_end)
+    {
+        return Arch(radius_x, radius_y, x_axis_rotation, large_arc_flag, sweep_flag, p_end, true);
     }
 };
 
