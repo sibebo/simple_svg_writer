@@ -285,9 +285,11 @@ public:
 
     /**
      * Matrix performs a free transform defined by the specified matrix. It's structure is:
-     * | x' |   | a c e |   | x |
-     * | y' | = | b d f | * | y |
-     * | 1  |   | 0 0 1 |   | 1 |
+     * ```
+     *  | x' |   | a c e |   | x |
+     *  | y' | = | b d f | * | y |
+     *  | 1  |   | 0 0 1 |   | 1 |
+     * ```
     */
     Transform&  Matrix(double a, double b, double c, double d, double e, double f)
     {
