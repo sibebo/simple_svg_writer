@@ -675,19 +675,19 @@ public:
     {}
     virtual ~Rect() {}
 
-    void    Set(double x, double y, double w, double h)
+    auto&   Set(double x, double y, double w, double h)
     {
-        AddAttributes({{"x", x}, {"y", y}, {"width", w}, {"height", h}});
+        return AddAttributes({{"x", x}, {"y", y}, {"width", w}, {"height", h}});
     }
 
-    void    Set(double w, double h)
+    auto&   Set(double w, double h)
     {
-        AddAttributes({{"width", w}, {"height", h}});
+        return AddAttributes({{"width", w}, {"height", h}});
     }
 
-    void    Set(const Point &from, const Point &to)
+    auto&   Set(const Point &from, const Point &to)
     {
-        AddAttributes({{"x", from.X()}, {"y", from.Y()}, {"width", to.X() - from.X()}, {"height", to.Y() - from.Y()}});
+        return AddAttributes({{"x", from.X()}, {"y", from.Y()}, {"width", to.X() - from.X()}, {"height", to.Y() - from.Y()}});
     }
 };
 
