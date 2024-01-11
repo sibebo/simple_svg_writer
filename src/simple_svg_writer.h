@@ -18,8 +18,9 @@ inline std::string to_string(double value)
     return s.str();
 }
 
-inline  constexpr double  ToDegrees(double radians) {return radians * 45.0 / std::atan(1.0);}
-inline  constexpr double  ToRadians(double degrees) {return degrees * std::atan(1.0) / 45.0;}
+inline  constexpr double  ToDegrees(double radians) {return radians * 180.0 / 3.1415926535897932384626433832795028841972;}
+inline  constexpr double  ToRadians(double degrees) {return degrees * 3.1415926535897932384626433832795028841972 / 180.0;}
+
 
 
 /**
