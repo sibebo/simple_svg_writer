@@ -51,8 +51,6 @@ public:
 */
 class Point
 {
-    constexpr double  Deg() const {return 45.0 / std::atan(1.0);}
-
     double  x{0.0};
     double  y{0.0};
 
@@ -130,7 +128,7 @@ public:
      * Degrees returns the direction angle in degrees of the vector from origo to point.
      * @return  direction angle in degrees of the vector from origo to point.
     */
-    double  Degrees() const {return Deg() * Radians();}
+    double  Degrees() const {return ToDegrees(Radians());}
 
     /**
      * Traverse returns the 2D transvers vector of vector represented by point, i.e. rotated +90 deg.
