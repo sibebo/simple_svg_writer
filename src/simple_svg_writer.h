@@ -503,6 +503,9 @@ protected:
 private:
 };
 
+enum STROKE_LINECAP {SLC_BUTT, SLC_ROUND, SLC_SQUARE};
+enum STROKE_LINEJOIN {SLJ_ARCS, SLJ_BEVEL, SLJ_MITER, SLJ_MITER_CLIP, SLJ_ROUND};
+
 template <typename SpecializedType>
 class Base : public AbstractBase
 {
@@ -592,6 +595,69 @@ public:
     /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-opacity
     {
         return AddAttribute({"stroke-opacity", stroke_opacity});
+    }
+
+    auto&   StrokeDashArray(const std::vector<int> &stroke_dasharray)
+    /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dasharray
+    {
+        if (stroke_dasharray.empty()) return static_cast<SpecializedType&>(*this);
+
+        std::ostringstream  stream;
+        for (auto i : stroke_dasharray) stream << i << ' ';
+        std::string stroke_dasharray_string = stream.str();
+        stroke_dasharray_string.pop_back();
+
+        return AddAttribute({"stroke-dasharray", stroke_dasharray_string});
+    }
+
+    auto&   StrokeDashOffset(int stroke_dashoffset)
+    /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dashoffset
+    {
+        return AddAttribute({"stroke-dashoffset", stroke_dashoffset});
+    }
+
+    auto&   StrokeLineCap(STROKE_LINECAP stroke_linecap)
+    /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linecap
+    {
+        switch (stroke_linecap)
+        {
+        case SLC_BUTT:
+            return AddAttribute({"stroke-linecap", "butt"});
+            break;
+        case SLC_ROUND:
+            return AddAttribute({"stroke-linecap", "round"});
+            break;
+        case SLC_SQUARE:
+            return AddAttribute({"stroke-linecap", "square"});
+            break;
+        default:
+            return static_cast<SpecializedType&>(*this);
+        }
+    }
+
+    auto&   StrokeLineJoin(STROKE_LINEJOIN stroke_linejoin)
+    /// @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linejoin
+    {
+        switch (stroke_linejoin)
+        {
+        case SLJ_ARCS:
+            return AddAttribute({"stroke-linejoin", "arcs"});
+            break;
+        case SLJ_BEVEL:
+            return AddAttribute({"stroke-linejoin", "bevel"});
+            break;
+        case SLJ_MITER:
+            return AddAttribute({"stroke-linejoin", "miter"});
+            break;
+        case SLJ_MITER_CLIP:
+            return AddAttribute({"stroke-linejoin", "miter-clip"});
+            break;
+        case SLJ_ROUND:
+            return AddAttribute({"stroke-linejoin", "round"});
+            break;
+        default:
+            return static_cast<SpecializedType&>(*this);
+        }
     }
 
     auto&   Fill(const std::string &fill)
